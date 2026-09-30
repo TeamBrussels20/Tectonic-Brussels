@@ -1,5 +1,9 @@
 # Kompass by KBC
 
+![Customer view](screenhots/Customer%20view.png)
+![KBC Advisor View - Client List](screenhots/KBC%20Advisor%20View%20-%20Client%20List.png)
+![KBC Advisor View - Client Profile](screenhots/KBC%20Advisor%20View%20-%20Client%20Profile.png)
+
 > A financial guide that understands each customer's situation and helps them move forward, at the right time.
 
 Kompass is a proof of concept built for the KBC challenge. Customers ask their question in their own words ("I want to take out a mortgage", "I want to save every month, help me") and Kompass answers from their real banking data: a direction, concrete figures, a roadmap of actions, and a handoff to an advisor when the decision calls for it.
