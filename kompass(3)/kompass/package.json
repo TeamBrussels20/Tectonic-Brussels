@@ -1,0 +1,28 @@
+{
+  "name": "kompass",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Kompass by KBC — un copilote financier qui comprend la situation du client et le guide au bon moment.",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "node --watch server/index.js",
+    "dev:web": "vite",
+    "build": "vite build",
+    "start": "node server/index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.60.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "multer": "^2.4.0",
+    "pdf-parse": "^2.4.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "concurrently": "^9.0.1",
+    "vite": "^5.4.8"
+  }
+}
