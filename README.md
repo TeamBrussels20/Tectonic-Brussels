@@ -1,95 +1,95 @@
 # Kompass by KBC
 
-> Un guide financier qui comprend la situation de chaque client et l'aide à avancer, au bon moment.
+> A financial guide that understands each customer's situation and helps them move forward, at the right time.
 
-Kompass est un proof of concept développé pour le challenge KBC. Le client pose sa question avec ses mots (« je veux faire un prêt hypothécaire », « je veux économiser chaque mois, aide-moi ») et Kompass répond à partir de ses vraies données bancaires : un cap, des chiffres concrets, un itinéraire d'actions, et un passage de relais vers un conseiller quand la décision le demande.
+Kompass is a proof of concept built for the KBC challenge. Customers ask their question in their own words ("I want to take out a mortgage", "I want to save every month, help me") and Kompass answers from their real banking data: a direction, concrete figures, a roadmap of actions, and a handoff to an advisor when the decision calls for it.
 
-Kompass ne remplace pas le conseiller. Il prépare le terrain pour que chaque rendez-vous commence au bon endroit.
+Kompass does not replace the advisor. It lays the groundwork so that every appointment starts in the right place.
 
 ---
 
-## Lancer le projet en local
+## Running the project locally
 
-Prérequis : [Node.js](https://nodejs.org) 18 ou plus récent.
+Prerequisite: [Node.js](https://nodejs.org) 18 or newer.
 
 ```bash
-git clone https://github.com/<ton-compte>/kompass.git
+git clone https://github.com/<your-account>/kompass.git
 cd kompass
 npm install
 npm run dev
 ```
 
-Ouvre ensuite **http://localhost:5173**.
+Then open **http://localhost:5173**.
 
-### Mode démo ou mode IA
+### Demo mode or AI mode
 
-Sans configuration, Kompass tourne en **mode démo** : un moteur de règles local détecte l'intention de la question et construit la réponse à partir des données du client. Tout fonctionne hors ligne, idéal pour une démo en jury.
+Without any configuration, Kompass runs in **demo mode**: a local rules engine detects the intent of the question and builds the answer from the customer's data. Everything works offline, ideal for a demo in front of a jury.
 
-Pour activer les réponses générées par Claude :
+To enable Claude-generated answers:
 
 ```bash
 cp .env.example .env
-# puis colle ta clé dans .env : ANTHROPIC_API_KEY=sk-ant-...
+# then paste your key into .env: ANTHROPIC_API_KEY=sk-ant-...
 npm run dev
 ```
 
-Le badge en haut à droite passe de « Mode démo » à « IA active ». Si l'appel à l'API échoue, le serveur bascule automatiquement sur le mode démo, pour que la démo ne plante jamais.
+The badge in the top right switches from "Mode démo" (demo mode) to "IA active" (AI active). If the API call fails, the server automatically falls back to demo mode, so the demo never crashes.
 
-### Clients de démonstration
+### Demo customers
 
-| Client | Moment de vie | À essayer |
+| Customer | Life moment | Try |
 |---|---|---|
-| Lotte Peeters, 29 ans, Gand | Prépare un premier achat | « Je veux faire un prêt hypothécaire » |
-| Karim El Amrani, 38 ans, Liège | Budget familial sous tension (3e enfant) | « Mes fins de mois sont difficiles » |
-| Marc Dubois, 61 ans, Namur | Approche de la pension | « Que faire de mon épargne ? » |
+| Lotte Peeters, 29, Ghent | Preparing a first home purchase | « Je veux faire un prêt hypothécaire » ("I want to take out a mortgage") |
+| Karim El Amrani, 38, Liège | Family budget under strain (3rd child) | « Mes fins de mois sont difficiles » ("I struggle to make ends meet") |
+| Marc Dubois, 61, Namur | Approaching retirement | « Que faire de mon épargne ? » ("What should I do with my savings?") |
 
-Toutes les données sont fictives.
+The app and the demo engine work in French, so type the prompts in French. All data is fictitious.
 
-### Ajouter des documents
+### Adding documents
 
-Clique sur le trombone à gauche de la zone de saisie, ou glisse un fichier dans la conversation. Formats acceptés : PDF, PNG, JPG, WEBP et TXT, 10 Mo maximum.
+Click the paperclip to the left of the input field, or drag a file into the conversation. Accepted formats: PDF, PNG, JPG, WEBP and TXT, 10 MB maximum.
 
-Kompass reconnaît le type de document (fiche de paie, bail, contrat de crédit, contrat de travail, assurance, avertissement-extrait de rôle), en extrait les données clés et les compare aux comptes du client. Par exemple, il vérifie que le net de la fiche de paie correspond aux revenus reçus, ou calcule le préavis d'un bail. Chaque document devient un signal que le client peut désactiver, et alimente la checklist du dossier hypothécaire.
+Kompass recognizes the document type (payslip, lease, loan agreement, employment contract, insurance, tax assessment notice), extracts the key data and compares it with the customer's accounts. For example, it checks that the net pay on the payslip matches the income received, or calculates the notice period of a lease. Each document becomes a signal the customer can turn off, and feeds the mortgage application checklist.
 
-Le dossier `samples/` contient trois documents fictifs pour la démo :
-- `fiche-de-paie-lotte-peeters-2026-09.pdf` et `contrat-de-bail-lotte-peeters.pdf` pour Lotte ;
-- `contrat-pret-auto-el-amrani.pdf` pour Karim.
+The `samples/` folder contains three fictitious documents for the demo:
+- `fiche-de-paie-lotte-peeters-2026-09.pdf` (payslip) and `contrat-de-bail-lotte-peeters.pdf` (lease) for Lotte;
+- `contrat-pret-auto-el-amrani.pdf` (car loan agreement) for Karim.
 
-| | Mode démo | Mode IA (clé API) |
+| | Demo mode | AI mode (API key) |
 |---|---|---|
-| PDF avec texte | Lu, champs extraits par règles | Lu par Claude |
-| PDF scanné ou photo | Non lu (pas d'OCR) | Lu par Claude |
-| Types reconnus | Paie, bail, crédit (champs détaillés) | Tous, avec observations personnalisées |
+| PDF with text | Read, fields extracted by rules | Read by Claude |
+| Scanned PDF or photo | Not read (no OCR) | Read by Claude |
+| Recognized types | Payslip, lease, loan (detailed fields) | All, with personalized observations |
 
-Les documents restent en mémoire dans le serveur local et disparaissent à son redémarrage. En mode IA, ils sont envoyés à l'API Anthropic pour analyse : pour une démo, utilise les documents fictifs de `samples/` plutôt que tes vrais documents.
+Documents stay in memory on the local server and disappear when it restarts. In AI mode, they are sent to the Anthropic API for analysis: for a demo, use the fictitious documents in `samples/` rather than your real documents.
 
 ---
 
-## La vision
+## The vision
 
-La plupart des banques personnalisent en poussant des produits à des segments. Kompass inverse la logique : **on part de ce que le client essaie d'accomplir**, et la banque devient le moyen d'y arriver.
+Most banks personalize by pushing products to segments. Kompass flips the logic: **we start from what the customer is trying to achieve**, and the bank becomes the means to get there.
 
-### 1. Des signaux pour comprendre les besoins
-Les transactions disent déjà presque tout : un loyer qui augmente, des frais de crèche qui apparaissent, une épargne qui dort, un simulateur ouvert trois fois. Kompass les transforme en signaux lisibles (`server/signals.js`).
+### 1. Signals to understand needs
+Transactions already say almost everything: a rent that goes up, daycare fees that appear, savings sitting idle, a simulator opened three times. Kompass turns them into readable signals (`server/signals.js`).
 
-### 2. Reconnaître le client par sa situation, son comportement et son intention
-Chaque signal appartient à une de trois familles, affichées telles quelles au client :
-- **Situation** : ce qui est vrai aujourd'hui (revenus, réserve, épargne)
-- **Comportement** : ce qui change (tendances sur 6 mois, fins de mois négatives)
-- **Intention** : ce que le client prépare (recherches dans l'app, événements de vie)
+### 2. Recognizing the customer by situation, behavior and intent
+Each signal belongs to one of three families, shown as-is to the customer:
+- **Situation**: what is true today (income, buffer, savings)
+- **Behavior**: what is changing (6-month trends, negative month-ends)
+- **Intent**: what the customer is preparing (searches in the app, life events)
 
-Ces signaux se combinent en un **moment de vie** compréhensible (« Prépare un premier achat »), jamais en score opaque.
+These signals combine into an understandable **life moment** ("Preparing a first home purchase"), never into an opaque score.
 
-### 3. Une expérience qui s'adapte seule
-Le même écran devient une aide à l'achat pour Lotte, un plan de respiration budgétaire pour Karim et une préparation de pension pour Marc. Kompass prend aussi l'initiative **une seule fois, au bon moment** : un message proactif ancré dans un fait réel (« votre loyer a augmenté de 7 % cet été »).
+### 3. An experience that adapts on its own
+The same screen becomes a home-buying aid for Lotte, a budget breathing-room plan for Karim and a retirement preparation for Marc. Kompass also takes the initiative **only once, at the right time**: a proactive message anchored in a real fact ("your rent went up 7% this summer").
 
-### 4. Sans couture entre produits, services et canaux
-Chaque réponse peut se terminer par un passage vers un conseiller. Le conseiller reçoit le résumé de la conversation : le client n'a rien à réexpliquer. Le même moteur peut alimenter l'app, le site, le chatbot existant et l'écran du conseiller en agence.
+### 4. Seamless across products, services and channels
+Every answer can end with a handoff to an advisor. The advisor receives the conversation summary: the customer has nothing to re-explain. The same engine can power the app, the website, the existing chatbot and the advisor's screen in the branch.
 
-### 5. Un impact pour 2,3 millions de clients à la fois
-- Les signaux sont calculés par du code déterministe, bon marché et auditable, en batch la nuit pour tous les clients.
-- Le modèle de langage n'intervient que pour formuler la réponse quand le client pose une question.
-- Le client contrôle chaque signal (interrupteur dans le panneau de gauche). La confiance est une condition de l'échelle, pas une contrainte.
+### 5. Impact for 2.3 million customers at once
+- Signals are computed by deterministic code, cheap and auditable, in a nightly batch for all customers.
+- The language model only steps in to phrase the answer when the customer asks a question.
+- The customer controls every signal (toggle in the left panel). Trust is a condition for scale, not a constraint.
 
 ---
 
@@ -98,72 +98,72 @@ Chaque réponse peut se terminer par un passage vers un conseiller. Le conseille
 ```
 kompass/
 ├── server/
-│   ├── index.js          API Express (profil, chat, rendez-vous)
-│   ├── signals.js        Moteur de signaux, moment de vie, message proactif
-│   ├── prompt.js         Prompt système envoyé à Claude (signaux autorisés uniquement)
-│   ├── mockAdvisor.js    Moteur de démo sans IA, même format de réponse que Claude
-│   ├── documents.js      Upload, lecture PDF, classification, extraction, analyse par Claude
-│   └── data/customers.js Clients fictifs (6 mois d'historique)
+│   ├── index.js          Express API (profile, chat, appointments)
+│   ├── signals.js        Signals engine, life moment, proactive message
+│   ├── prompt.js         System prompt sent to Claude (allowed signals only)
+│   ├── mockAdvisor.js    AI-free demo engine, same response format as Claude
+│   ├── documents.js      Upload, PDF reading, classification, extraction, analysis by Claude
+│   └── data/customers.js Fictitious customers (6 months of history)
 ├── src/
 │   ├── App.jsx
 │   ├── components/
-│   │   ├── ContextPanel.jsx   « Ce que Kompass comprend » + consentement
-│   │   ├── Chat.jsx           Accueil, message proactif, conversation
-│   │   ├── Answer.jsx         Cap, chiffres, simulation, itinéraire, rendez-vous
+│   │   ├── ContextPanel.jsx   "What Kompass understands" + consent
+│   │   ├── Chat.jsx           Welcome, proactive message, conversation
+│   │   ├── Answer.jsx         Direction, figures, simulation, roadmap, appointment
 │   │   └── CompassMark.jsx
 │   └── styles.css
-├── samples/              Documents fictifs pour la démo
+├── samples/              Fictitious documents for the demo
 └── vite.config.js
 ```
 
-**Flux d'une question**
+**Flow of a question**
 
 ```
-Question du client
+Customer question
       │
       ▼
-Profil + signaux (déterministe) ──► filtrés par le consentement du client
+Profile + signals (deterministic) ──► filtered by the customer's consent
       │
       ▼
-Claude (ou moteur de démo) ──► réponse JSON structurée
+Claude (or demo engine) ──► structured JSON response
       │
       ▼
-Interface : cap · chiffres · simulation · itinéraire · produits · conseiller
+Interface: direction · figures · simulation · roadmap · products · advisor
 ```
 
-La réponse est toujours un objet JSON (`heading`, `reply`, `insights`, `simulation`, `notes`, `checklist`, `steps`, `products`, `handoff`, `followups`), ce qui permet d'afficher des composants riches plutôt qu'un simple texte.
+The response is always a JSON object (`heading`, `reply`, `insights`, `simulation`, `notes`, `checklist`, `steps`, `products`, `handoff`, `followups`), which makes it possible to display rich components rather than plain text.
 
-### Passer à l'échelle (au-delà du PoC)
-- Remplacer `data/customers.js` par un flux depuis le data lake KBC (transactions catégorisées).
-- Calculer les signaux en batch et les stocker dans un feature store.
-- Brancher `/api/handoff` sur le CRM des conseillers.
-- Stocker les documents dans le coffre-fort numérique KBC (chiffré), avec durée de conservation et suppression à la demande.
-- Ajouter l'évaluation : qualité des réponses, taux de passage vers un conseiller, satisfaction.
-- Conformité : journalisation des réponses, garde-fous MiFID pour tout ce qui touche au placement.
+### Scaling up (beyond the PoC)
+- Replace `data/customers.js` with a feed from the KBC data lake (categorized transactions).
+- Compute signals in batch and store them in a feature store.
+- Connect `/api/handoff` to the advisors' CRM.
+- Store documents in the KBC digital vault (encrypted), with a retention period and deletion on request.
+- Add evaluation: answer quality, advisor handoff rate, satisfaction.
+- Compliance: response logging, MiFID guardrails for anything related to investments.
 
 ---
 
-## Mettre le projet sur GitHub
+## Putting the project on GitHub
 
 ```bash
 git init
 git add .
-git commit -m "Kompass by KBC : proof of concept"
+git commit -m "Kompass by KBC: proof of concept"
 git branch -M main
-git remote add origin https://github.com/<ton-compte>/kompass.git
+git remote add origin https://github.com/<your-account>/kompass.git
 git push -u origin main
 ```
 
-Crée d'abord un dépôt vide nommé `kompass` sur github.com (sans README). Le fichier `.env` est ignoré par `.gitignore` : ta clé API ne sera jamais publiée.
+First create an empty repository named `kompass` on github.com (without a README). The `.env` file is ignored by `.gitignore`: your API key will never be published.
 
 ## Scripts
 
-| Commande | Effet |
+| Command | Effect |
 |---|---|
-| `npm run dev` | Lance l'API (port 3001) et l'interface (port 5173) |
-| `npm run build` | Construit l'interface dans `dist/` |
-| `npm start` | Sert l'API et l'interface construite sur http://localhost:3001 |
+| `npm run dev` | Starts the API (port 3001) and the interface (port 5173) |
+| `npm run build` | Builds the interface into `dist/` |
+| `npm start` | Serves the API and the built interface on http://localhost:3001 |
 
 ---
 
-Kompass donne des repères, pas un conseil financier. Projet étudiant, non affilié officiellement à KBC.
+Kompass gives guidance, not financial advice. Hackathon project, not officially affiliated with KBC.

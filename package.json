@@ -2,7 +2,7 @@
   "name": "kompass",
   "version": "0.1.0",
   "private": true,
-  "description": "Kompass by KBC — un copilote financier qui comprend la situation du client et le guide au bon moment.",
+  "description": "Kompass by KBC — a financial copilot that understands the customer's situation and guides them at the right time.",
   "type": "module",
   "scripts": {
     "dev": "concurrently -n api,web -c blue,cyan \"npm:dev:api\" \"npm:dev:web\"",
