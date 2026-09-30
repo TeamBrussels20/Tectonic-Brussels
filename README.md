@@ -9,6 +9,8 @@ Kompass does not replace the advisor. It lays the groundwork so that every appoi
 
 ---
 
+▶️ **[Watch the demo video](Demo.mp4)**
+
 ![Customer view](screenhots/Customer%20view.png)
 ![KBC Advisor View - Client List](screenhots/KBC%20Advisor%20View%20-%20Client%20List.png)
 ![KBC Advisor View - Client Profile](screenhots/KBC%20Advisor%20View%20-%20Client%20Profile.png)
