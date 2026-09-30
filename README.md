@@ -1,8 +1,5 @@
 # Kompass by KBC
 
-![Customer view](screenhots/Customer%20view.png)
-![KBC Advisor View - Client List](screenhots/KBC%20Advisor%20View%20-%20Client%20List.png)
-![KBC Advisor View - Client Profile](screenhots/KBC%20Advisor%20View%20-%20Client%20Profile.png)
 
 > A financial guide that understands each customer's situation and helps them move forward, at the right time.
 
@@ -11,6 +8,10 @@ Kompass is a proof of concept built for the KBC challenge. Customers ask their q
 Kompass does not replace the advisor. It lays the groundwork so that every appointment starts in the right place.
 
 ---
+
+![Customer view](screenhots/Customer%20view.png)
+![KBC Advisor View - Client List](screenhots/KBC%20Advisor%20View%20-%20Client%20List.png)
+![KBC Advisor View - Client Profile](screenhots/KBC%20Advisor%20View%20-%20Client%20Profile.png)
 
 ## Running the project locally
 
