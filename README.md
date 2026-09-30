@@ -147,17 +147,6 @@ The response is always a JSON object (`heading`, `reply`, `insights`, `simulatio
 
 ---
 
-## Putting the project on GitHub
-
-```bash
-git init
-git add .
-git commit -m "Kompass by KBC: proof of concept"
-git branch -M main
-git remote add origin https://github.com/<your-account>/kompass.git
-git push -u origin main
-```
-
 First create an empty repository named `kompass` on github.com (without a README). The `.env` file is ignored by `.gitignore`: your API key will never be published.
 
 ## Scripts
