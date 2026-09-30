@@ -97,7 +97,8 @@ export function mockAnswer(profile, history, consent) {
     const ownFunds = Math.max(0, m.savings - buffer);
     const feesRate = 0.06;
     const price = Math.min((loan + ownFunds) / (1 + feesRate), loan / 0.9);
-    const rent = c.recurring.find((r) => /loyer/i.test(r.label));
+    const rent = c.recurring.find((r) => /loyer|^rent\b|huur/i.test(r.label));
+    const unused = c.recurring.find((r) => /aucune utilisation/i.test(r.note || ''));
     const monthsToMore = Math.ceil(20000 / Math.max(m.monthlySurplus, 1));
     return {
       heading: 'Votre cap : un premier achat réaliste',
@@ -119,7 +120,7 @@ export function mockAnswer(profile, history, consent) {
       },
       steps: [
         { title: 'Fixer votre budget cible', detail: `Visez un bien autour de ${eur(Math.round(price / 5000) * 5000)}. En continuant à épargner ${eur(m.monthlySurplus)} par mois, vous aurez environ 20 000 € d\u2019apport en plus dans ${monthsToMore} mois.` },
-        { title: allowed('unused-sub') ? 'Optimiser deux petites dépenses' : 'Garder votre rythme d\u2019épargne', detail: allowed('unused-sub') ? 'Disney+ ne semble plus utilisé (9,99 €/mois). Chaque euro libéré améliore votre dossier.' : 'Votre régularité est un atout fort pour la banque.' },
+        { title: unused && allowed('unused-sub') ? 'Optimiser les petites dépenses' : 'Garder votre rythme d\u2019épargne', detail: unused && allowed('unused-sub') ? `${unused.label} ne semble plus utilisé (${unused.amount.toLocaleString('fr-BE')} €/mois). Chaque euro libéré améliore votre dossier.` : 'Votre régularité est un atout fort pour la banque.' },
         { title: 'Compléter votre dossier', detail: (() => { const missing = mortgageChecklist(docs).filter((i) => !i.done).map((i) => i.label.toLowerCase()); return `Encore à ajouter : ${missing.join(', ')}. Glissez-les dans Kompass, je les vérifie pour vous.`; })() },
         { title: 'Rencontrer un conseiller crédit', detail: 'Il confirmera le taux, la durée et les primes éventuelles liées à votre région.' }
       ],
@@ -136,9 +137,13 @@ export function mockAnswer(profile, history, consent) {
   if (intent === 'budget') {
     const top = Object.entries(m.avgByCategory).slice(0, 4);
     const gap = r25(Math.max(0, -m.recentSurplus + 250));
+    const birth = profile.signals.some((s) => s.id === 'life-birth');
+    const ups = profile.signals.filter((s) => s.id.startsWith('up-') && allowed(s.id));
+    const rising = ups.find((s) => s.tone === 'warn') || ups[0];
+    const hasLoans = c.accounts.some((a) => a.type === 'credit');
     return {
       heading: 'Votre cap : retrouver de l\u2019air en fin de mois',
-      reply: `Merci de votre confiance ${c.firstName}. L\u2019arrivée d\u2019un enfant change beaucoup de choses et vos chiffres le montrent : les dépenses liées aux enfants ont augmenté de plus de 50 % depuis avril. Rien d\u2019anormal, mais le budget doit s\u2019adapter. Voici par où commencer.`,
+      reply: `Merci de votre confiance ${c.firstName}. ${birth ? 'L\u2019arrivée d\u2019un enfant change beaucoup de choses et vos chiffres le montrent' : 'Vos chiffres montrent que le budget est sous pression'}${rising ? ` : ${rising.title.charAt(0).toLowerCase()}${rising.title.slice(1)} (${rising.detail.charAt(0).toLowerCase()}${rising.detail.slice(1).replace(/\.$/, '')})` : ''}. Rien d\u2019anormal, mais le budget doit s\u2019adapter. Voici par où commencer.`,
       insights: [
         { label: 'Fins de mois négatives', value: `${m.negativeMonths} sur 6`, tone: 'warn' },
         { label: 'Réserve de sécurité', value: `${String(m.emergencyMonths).replace('.', ',')} mois`, tone: 'warn' },
@@ -150,7 +155,7 @@ export function mockAnswer(profile, history, consent) {
         note: 'Catégories calculées automatiquement à partir de vos transactions.'
       },
       steps: [
-        { title: 'Vérifier les aides liées à la naissance', detail: 'Allocations familiales majorées, prime de naissance, réduction fiscale pour frais de garde : assurez-vous que tout est bien perçu.' },
+        ...(birth ? [{ title: 'Vérifier les aides liées à la naissance', detail: 'Allocations familiales majorées, prime de naissance, réduction fiscale pour frais de garde : assurez-vous que tout est bien perçu.' }] : []),
         { title: 'Revoir les courses et le shopping', detail: `Alimentation et shopping représentent ${eur((m.avgByCategory.alimentation || 0) + (m.avgByCategory.shopping || 0))} par mois. Un budget hebdomadaire dans l\u2019app aide à tenir.` },
         { title: 'Lisser les grosses factures', detail: 'Énergie et assurances peuvent être étalées pour éviter les pics de fin de mois.' },
         ...(docs.find((d) => d.type === 'credit') ? [{ title: 'Regarder votre crédit auto', detail: docs.find((d) => d.type === 'credit').observations.join(' ') }] : []),
@@ -160,8 +165,10 @@ export function mockAnswer(profile, history, consent) {
         { name: 'Alertes de budget dans KBC Mobile', why: 'Vous prévient avant que le compte passe sous zéro, pas après.' },
         { name: 'Épargne automatique', why: 'Un petit virement programmé le jour du salaire.' }
       ],
-      handoff: { needed: true, reason: 'Un conseiller peut revoir votre prêt hypothécaire et votre prêt auto : un regroupement ou un allongement de durée peut libérer plusieurs centaines d\u2019euros par mois.', topic: 'Budget familial et crédits en cours' },
-      followups: ['Quelles aides pour la naissance en Wallonie ?', 'Crée-moi un budget hebdomadaire', 'Est-ce que je peux revoir mon prêt ?']
+      handoff: hasLoans
+        ? { needed: true, reason: 'Un conseiller peut revoir vos crédits en cours : un regroupement ou un allongement de durée peut libérer plusieurs centaines d\u2019euros par mois.', topic: 'Budget et crédits en cours' }
+        : { needed: true, reason: 'Un conseiller peut vous aider à bâtir un budget réaliste et une réserve de sécurité.', topic: 'Budget et réserve de sécurité' },
+      followups: [birth ? `Quelles aides pour la naissance en ${c.region} ?` : 'Où puis-je économiser en priorité ?', 'Crée-moi un budget hebdomadaire', hasLoans ? 'Est-ce que je peux revoir mon prêt ?' : 'Comment constituer une réserve ?']
     };
   }
 
@@ -170,7 +177,7 @@ export function mockAnswer(profile, history, consent) {
     const toAllocate = Math.max(0, m.savings - buffer);
     return {
       heading: 'Votre cap : préparer une pension sereine',
-      reply: `${c.firstName}, vous êtes dans une situation solide : vous épargnez ${m.savingsRate} % de vos revenus et disposez de ${eur(m.savings)} sur votre compte épargne. À trois ans de la pension, la question n\u2019est pas « combien » mais « comment organiser cet argent ».`,
+      reply: `${c.firstName}, vous êtes dans une situation solide : vous épargnez ${m.savingsRate} % de vos revenus et disposez de ${eur(m.savings)} sur votre compte épargne. À l\u2019approche de la pension, la question n\u2019est pas « combien » mais « comment organiser cet argent ».`,
       insights: [
         { label: 'Réserve recommandée (6 mois)', value: eur(buffer), tone: 'neutral' },
         { label: 'Montant à organiser', value: eur(toAllocate), tone: 'good' },
@@ -179,7 +186,7 @@ export function mockAnswer(profile, history, consent) {
       steps: [
         { title: 'Estimer votre future pension', detail: 'Consultez mypension.be pour votre pension légale. Kompass l\u2019ajoutera à vos revenus prévus.' },
         { title: 'Garder une réserve disponible', detail: `Conservez environ ${eur(buffer)} accessibles immédiatement.` },
-        { title: 'Définir vos horizons', detail: 'Ce dont vous aurez besoin à 64 ans, à 70 ans, et ce qui pourra rester pour plus tard ou pour vos enfants.' },
+        { title: 'Définir vos horizons', detail: 'Ce dont vous aurez besoin au départ à la pension, dix ans plus tard, et ce qui pourra rester pour plus tard ou pour vos enfants.' },
         { title: 'En parler à un conseiller', detail: 'Il établira votre profil de risque et vous proposera une répartition adaptée.' }
       ],
       products: [

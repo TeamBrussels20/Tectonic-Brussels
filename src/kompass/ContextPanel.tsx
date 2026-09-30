@@ -1,4 +1,5 @@
-import { eur } from '../api.js';
+import { eur } from './api';
+import type { Consent, Profile } from './types';
 
 const FAMILIES = [
   { id: 'situation', label: 'Votre situation', hint: 'Ce qui est vrai aujourd’hui' },
@@ -6,9 +7,16 @@ const FAMILIES = [
   { id: 'intention', label: 'Ce que vous préparez', hint: 'Vos recherches et événements de vie' }
 ];
 
-const ACCOUNT_LABEL = { courant: 'Compte courant', epargne: 'Épargne', pension: 'Pension', credit: 'Crédit' };
+const ACCOUNT_LABEL = { courant: 'Compte courant', epargne: 'Épargne', placement: 'Placements', pension: 'Pension', credit: 'Crédit' };
 
-export default function ContextPanel({ profile, consent, onToggle, open, onClose, onRemoveDocument }) {
+export default function ContextPanel({ profile, consent, onToggle, open, onClose, onRemoveDocument }: {
+  profile: Profile | null;
+  consent: Consent;
+  onToggle: (id: string) => void;
+  open: boolean;
+  onClose: () => void;
+  onRemoveDocument: (docId: string) => void;
+}) {
   if (!profile) return <aside className={`context${open ? ' open' : ''}`} />;
   const { customer: c, metrics: m, signals, lifeMoment, documents = [] } = profile;
 
@@ -18,7 +26,7 @@ export default function ContextPanel({ profile, consent, onToggle, open, onClose
 
       <div className="who">
         <p className="who-name">{c.firstName} {c.lastName}</p>
-        <p className="who-meta">{c.age} ans, {c.city}. {c.household}.</p>
+        <p className="who-meta">{[c.age != null && `${c.age} ans`, c.city].filter(Boolean).join(', ')}. {c.household}.</p>
       </div>
 
       <div className="moment">

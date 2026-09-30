@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import Answer from './Answer.jsx';
-import CompassMark from './CompassMark.jsx';
-import { ACCEPTED_FILES, MAX_FILE_MB } from '../api.js';
+import Answer from './Answer';
+import CompassMark from './CompassMark';
+import { ACCEPTED_FILES, MAX_FILE_MB } from './api';
+import type { Message, Profile } from './types';
 
 const STARTERS = ['Je veux économiser de l’argent tous les mois', 'Je veux faire un prêt hypothécaire', 'Où part mon argent ?', 'Je veux préparer ma pension'];
 
@@ -13,16 +14,24 @@ function PaperclipIcon() {
   );
 }
 
-export default function Chat({ profile, messages, loading, error, onSend, onUpload, uploading }) {
+export default function Chat({ profile, messages, loading, error, onSend, onUpload, uploading }: {
+  profile: Profile | null;
+  messages: Message[];
+  loading: boolean;
+  error: string;
+  onSend: (text: string) => void;
+  onUpload: (files: File[]) => void;
+  uploading: string | null;
+}) {
   const [text, setText] = useState('');
   const [dragging, setDragging] = useState(false);
-  const endRef = useRef(null);
-  const fileRef = useRef(null);
+  const endRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const dragDepth = useRef(0);
 
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, [messages, loading, uploading]);
 
-  function submit(e) {
+  function submit(e?: React.FormEvent | React.KeyboardEvent) {
     e?.preventDefault();
     const t = text.trim();
     if (!t || loading) return;
@@ -30,19 +39,19 @@ export default function Chat({ profile, messages, loading, error, onSend, onUplo
     setText('');
   }
 
-  function pickFiles(list) {
-    const files = [...list];
+  function pickFiles(list: FileList | null) {
+    const files = [...(list ?? [])];
     if (files.length) onUpload(files);
   }
 
   const drag = {
-    onDragEnter: (e) => { if (e.dataTransfer.types.includes('Files')) { e.preventDefault(); dragDepth.current++; setDragging(true); } },
-    onDragOver: (e) => { if (e.dataTransfer.types.includes('Files')) e.preventDefault(); },
+    onDragEnter: (e: React.DragEvent) => { if (e.dataTransfer.types.includes('Files')) { e.preventDefault(); dragDepth.current++; setDragging(true); } },
+    onDragOver: (e: React.DragEvent) => { if (e.dataTransfer.types.includes('Files')) e.preventDefault(); },
     onDragLeave: () => { dragDepth.current = Math.max(0, dragDepth.current - 1); if (!dragDepth.current) setDragging(false); },
-    onDrop: (e) => { e.preventDefault(); dragDepth.current = 0; setDragging(false); pickFiles(e.dataTransfer.files); }
+    onDrop: (e: React.DragEvent) => { e.preventDefault(); dragDepth.current = 0; setDragging(false); pickFiles(e.dataTransfer.files); }
   };
 
-  const summary = messages.map((m) => `${m.role === 'user' ? 'Client' : 'Kompass'} : ${m.role === 'user' ? m.content : m.answer?.heading}`).join('\n');
+  const summary = messages.map((m) => (m.role === 'user' ? `Client : ${m.content}` : `Kompass : ${m.answer.heading}`)).join('\n');
   const nudge = profile?.nudge;
   const empty = messages.length === 0;
   const busy = loading || Boolean(uploading);
@@ -89,7 +98,7 @@ export default function Chat({ profile, messages, loading, error, onSend, onUplo
                   : <p className="bubble-user">{m.content}</p>}
               </div>
             )
-            : <Answer key={i} answer={m.answer} customerId={profile.customer.id} onFollowup={onSend} conversationSummary={summary} />
+            : <Answer key={i} answer={m.answer} customerId={profile!.customer.id} onFollowup={onSend} conversationSummary={summary} />
         ))}
 
         {(loading || uploading) && (

@@ -1,4 +1,4 @@
-export default function CompassMark({ size = 28, swing = false }) {
+export default function CompassMark({ size = 28, swing = false }: { size?: number; swing?: boolean }) {
   return (
     <svg className={`compass-mark${swing ? ' swing' : ''}`} width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
       <circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" strokeOpacity=".25" strokeWidth="2" />

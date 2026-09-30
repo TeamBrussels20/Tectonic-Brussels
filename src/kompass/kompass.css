@@ -1,6 +1,7 @@
 /* Kompass — palette inspirée d'un instrument de navigation :
-   un panneau « cadran » bleu nuit, une surface de conversation claire et froide. */
-:root {
+   un panneau « cadran » bleu nuit, une surface de conversation claire et froide.
+   Tout est limité à .kompass pour ne pas déteindre sur l'espace conseiller (Tailwind). */
+.kompass {
   --navy: #0A2E4F;
   --navy-2: #123D63;
   --sky: #00A3E0;
@@ -21,16 +22,12 @@
   --r-lg: 20px;
 }
 
-* { box-sizing: border-box; }
-html, body, #root { height: 100%; margin: 0; }
-body { font-family: var(--body); color: var(--ink); background: var(--frost); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
-button, select, textarea { font: inherit; color: inherit; }
-button { cursor: pointer; }
-:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
-h1, h2, h3, h4 { font-family: var(--display); margin: 0; }
-p { margin: 0; }
-
-.app { display: flex; flex-direction: column; height: 100%; }
+.kompass { display: flex; flex-direction: column; height: 100vh; height: 100dvh; font-family: var(--body); color: var(--ink); background: var(--frost); font-size: 15px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+.kompass button, .kompass select, .kompass textarea { font: inherit; color: inherit; }
+.kompass button { cursor: pointer; }
+.kompass :focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
+.kompass h1, .kompass h2, .kompass h3, .kompass h4 { font-family: var(--display); font-weight: 700; margin: 0; }
+.kompass p { margin: 0; }
 
 /* ---------- Barre du haut ---------- */
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 12px 24px; background: var(--paper); border-bottom: 1px solid var(--line); }
@@ -44,6 +41,8 @@ p { margin: 0; }
 .mode-demo { background: var(--amber-bg); color: var(--amber); }
 .mode-claude { background: var(--green-bg); color: var(--green); }
 .panel-toggle { display: none; border: 1px solid var(--line); background: var(--paper); border-radius: var(--r-sm); padding: 6px 12px; }
+.advisor-link { white-space: nowrap; font-size: 13px; color: var(--slate); text-decoration: none; border: 1px solid var(--line); border-radius: var(--r-sm); padding: 6px 12px; background: var(--paper); }
+.advisor-link:hover { color: var(--navy); border-color: var(--sky); }
 
 .layout { flex: 1; display: grid; grid-template-columns: 360px 1fr; min-height: 0; }
 
@@ -198,7 +197,7 @@ p { margin: 0; }
 .doc-by { font-size: 11.5px; color: #7F9FB8; margin-top: 6px; }
 .docs-privacy { font-size: 11.5px; color: #7F9FB8; margin-top: 10px; }
 
-.notes ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.notes ul { margin: 0; padding-left: 18px; list-style: disc; display: grid; gap: 6px; }
 .notes li { font-size: 14.5px; }
 .notes li::marker { color: var(--sky); }
 
@@ -222,7 +221,7 @@ p { margin: 0; }
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; }
   .panel-toggle { display: inline-block; }
-  .persona span, .brand-by, .mode { display: none; }
+  .persona span, .brand-by, .mode, .advisor-link { display: none; }
   .topbar-right { gap: 8px; }
   .persona select { max-width: 120px; }
   .panel-toggle { white-space: nowrap; }

@@ -1,17 +1,25 @@
 import { useState } from 'react';
-import CompassMark from './CompassMark.jsx';
-import { api } from '../api.js';
+import CompassMark from './CompassMark';
+import { api } from './api';
+import type { Answer as AnswerData } from './types';
 
-export default function Answer({ answer, customerId, onFollowup, conversationSummary }) {
-  const [booking, setBooking] = useState(null);
+type Booking = { state: 'sending' } | { state: 'done'; ref: string } | { state: 'error'; message: string };
+
+export default function Answer({ answer, customerId, onFollowup, conversationSummary }: {
+  answer: AnswerData;
+  customerId: string;
+  onFollowup: (text: string) => void;
+  conversationSummary: string;
+}) {
+  const [booking, setBooking] = useState<Booking | null>(null);
 
   async function book() {
     setBooking({ state: 'sending' });
     try {
-      const r = await api.handoff({ customerId, topic: answer.handoff.topic, summary: conversationSummary });
+      const r = await api.handoff({ customerId, topic: answer.handoff!.topic, summary: conversationSummary });
       setBooking({ state: 'done', ref: r.ref });
     } catch (e) {
-      setBooking({ state: 'error', message: e.message });
+      setBooking({ state: 'error', message: (e as Error).message });
     }
   }
 
@@ -24,7 +32,7 @@ export default function Answer({ answer, customerId, onFollowup, conversationSum
 
       <p className="answer-reply">{answer.reply}</p>
 
-      {answer.insights?.length > 0 && (
+      {answer.insights && answer.insights.length > 0 && (
         <dl className="insights">
           {answer.insights.map((i) => (
             <div key={i.label} className={`tone-${i.tone || 'neutral'}`}>
@@ -49,14 +57,14 @@ export default function Answer({ answer, customerId, onFollowup, conversationSum
         </section>
       )}
 
-      {answer.notes?.length > 0 && (
+      {answer.notes && answer.notes.length > 0 && (
         <section className="notes">
           <h4>Ce que ça change pour vous</h4>
           <ul>{answer.notes.map((n) => <li key={n}>{n}</li>)}</ul>
         </section>
       )}
 
-      {answer.checklist?.length > 0 && (
+      {answer.checklist && answer.checklist.length > 0 && (
         <section className="checklist">
           <h4>Votre dossier : {answer.checklist.filter((i) => i.done).length} pièces sur {answer.checklist.length}</h4>
           <ul>
@@ -71,7 +79,7 @@ export default function Answer({ answer, customerId, onFollowup, conversationSum
         </section>
       )}
 
-      {answer.steps?.length > 0 && (
+      {answer.steps && answer.steps.length > 0 && (
         <section className="route">
           <h4>Votre itinéraire</h4>
           <ol>
@@ -85,7 +93,7 @@ export default function Answer({ answer, customerId, onFollowup, conversationSum
         </section>
       )}
 
-      {answer.products?.length > 0 && (
+      {answer.products && answer.products.length > 0 && (
         <section className="products">
           <h4>Ce qui peut vous aider chez KBC</h4>
           <ul>
@@ -114,7 +122,7 @@ export default function Answer({ answer, customerId, onFollowup, conversationSum
         </section>
       )}
 
-      {answer.followups?.length > 0 && (
+      {answer.followups && answer.followups.length > 0 && (
         <div className="followups">
           {answer.followups.map((f) => (
             <button key={f} className="chip" onClick={() => onFollowup(f)}>{f}</button>
